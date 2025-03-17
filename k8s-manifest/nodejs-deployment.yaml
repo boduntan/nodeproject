@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodejs-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nodejs
+  template:
+    metadata:
+      labels:
+        app: nodejs
+    spec:
+      containers:
+        - name: nodejs
+          image: node:10-alpine
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: nodejs-config
+            - secretRef:
+                name: mongo-secrets
+          volumeMounts:
+            - mountPath: /home/node/app
+              name: node-volume
+            - mountPath: /home/node/app/node_modules
+              name: node-modules
+          #command: ["/bin/sh", "-c", " /home/node/app/wait-for.sh db:27017 -- /home/node/app/node_modules/.bin/nodemon app.js"]
+          command: ["/bin/sh", "-c", "./wait-for.sh db:27017 -- npm start"]
+      volumes:
+        - name: node-volume
+          hostPath:
+            path: /home/ubuntu/node_project  # Adjust the path to your project folder
+        - name: node-modules
+          persistentVolumeClaim:
+            claimName: node-modules-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodejs-service
+spec:
+  selector:
+    app: nodejs
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer

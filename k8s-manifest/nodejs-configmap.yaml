@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nodejs-config
+data:
+  MONGO_HOSTNAME: db
+  MONGO_PORT: "27017"
+  MONGO_DB: db

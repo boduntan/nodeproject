@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: node-modules-pv
+spec:
+  capacity:
+    storage: 1Gi  # Adjust to match the PVC's requested storage
+  accessModes:
+    - ReadWriteOnce  # This should match the PVC's access mode
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard  # Should match the PVC's storage class
+  hostPath:
+    path: /mnt/data/node-modules  # Path on the host node (ensure this exists on your node)
+    type: DirectoryOrCreate  # Kubernetes will create the directory if it doesn't exist

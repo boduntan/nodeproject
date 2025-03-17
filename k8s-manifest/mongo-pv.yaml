@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongo-pv
+spec:
+  capacity:
+    storage: 5Gi  # Specify the desired storage size
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard  # Ensure it matches the PVC's storage class
+  hostPath:  # This is for testing purposes (use appropriate provisioners for production)
+    path: /mnt/data  # Path on the host node
+    type: DirectoryOrCreate
