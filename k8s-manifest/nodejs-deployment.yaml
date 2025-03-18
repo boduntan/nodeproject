@@ -12,9 +12,13 @@ spec:
       labels:
         app: nodejs
     spec:
+      initContainers:
+        - name: wait-for-db
+          image: busybox
+          command: ['sh', '-c', 'until nc -z mongo-service 27017; do echo "Waiting for database..."; sleep 2; done;']
       containers:
         - name: nodejs
-          image: node:10-alpine
+          image: docker.io/thecodegirl/nodejs_wait:latest
           ports:
             - containerPort: 8080
           envFrom:
@@ -27,12 +31,14 @@ spec:
               name: node-volume
             - mountPath: /home/node/app/node_modules
               name: node-modules
-          #command: ["/bin/sh", "-c", " /home/node/app/wait-for.sh db:27017 -- /home/node/app/node_modules/.bin/nodemon app.js"]
-          command: ["/bin/sh", "-c", "./wait-for.sh db:27017 -- npm start"]
+          command: ["/bin/sh", "-c", "npm start"]
+      imagePullSecrets:
+        - name: my-registry-key
       volumes:
         - name: node-volume
           hostPath:
-            path: /home/ubuntu/node_project  # Adjust the path to your project folder
+            path: "/home/ubuntu/node_project/nodeproject" # Adjust the path to your project folder
+            type: DirectoryOrCreate
         - name: node-modules
           persistentVolumeClaim:
             claimName: node-modules-pvc
