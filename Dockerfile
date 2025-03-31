@@ -1,26 +1,19 @@
 FROM node:10-alpine
 
-RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
+# Set the working directory
+WORKDIR /app
 
-WORKDIR /home/node/app
-
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
-COPY wait-for.sh /home/node/app/wait-for.sh
-
-USER node
-
+# Install dependencies
 RUN npm install
 
-USER root 
+# Copy the rest of the application code
+COPY . .
 
-RUN chmod +x /home/node/app/wait-for.sh
-
-USER node
-
-COPY --chown=node:node . .
-
+# Expose the application port
 EXPOSE 8080
 
-#CMD [ "node", "app.js" ]
-CMD ["/bin/sh", "-c", "./wait-for.sh db:27017 -- npm start"]
+# Run the application
+CMD ["node", "app.js"]
